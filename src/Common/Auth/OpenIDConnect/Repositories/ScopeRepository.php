@@ -35,7 +35,10 @@ class ScopeRepository implements ScopeRepositoryInterface
                 'description' => 'Registered name.',
             ],
             'phone' => [
-                'description' => 'On record phone.',
+                'description' => 'Current phone.',
+            ],
+            'fhirUser' => [
+                'description' => 'Declare FHIR Resources usage.',
             ],
             'api:oemr' => [
                 'description' => 'Use Standard Api',
@@ -61,6 +64,12 @@ class ScopeRepository implements ScopeRepositoryInterface
             'nonce' => [
                 'description' => 'Security',
             ],
+            'patient/*.read' => [
+                'description' => 'Read only access to all information about a patient that currently exists and any information created in the future.',
+            ],
+            'launch/patient' => [
+                'description' => 'Grant an external application the ability to launch and load your patient profile.',
+            ]
         ];
 
         if (array_key_exists($scopeIdentifier, $scopes) === false && stripos($scopeIdentifier, 'site:') === false) {
@@ -80,7 +89,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $userIdentifier = null
     ) {
         // If a nonce is passed in, add a nonce scope for id token nonce claim
-        if ($_SESSION['nonce']) {
+        if (!empty($_SESSION['nonce'])) {
             $scope = new ScopeEntity();
             $scope->setIdentifier('nonce');
             $scopes[] = $scope;

@@ -14,16 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// $GLOBALS['print_command'] is the
-// Print command for spooling to printers, used by statements.inc.php
-// This is the command to be used for printing (without the filename).
-// The word following "-P" should be the name of your printer.  This
-// example is designed for 8.5x11-inch paper with 1-inch margins,
-// 10 CPI, 6 LPI, 65 columns, 54 lines per page.
-//
-// IF lpr services are installed on Windows this setting will be similar
-// Otherwise configure it as needed (print /d:PRN) might be an option for Windows parallel printers
-
 //  Current supported languages:    // Allow capture of term for translation:
 //   Albanian                       // xl('Albanian')
 //   Amharic                        // xl('Amharic')
@@ -2766,13 +2756,6 @@ $GLOBALS_METADATA = array(
             xl('List used by above Country Data Type option.')
         ),
 
-        'print_command' => array(
-            xl('Print Command'),
-            'text',                           // data type
-            'lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left=72 -o page-top=72',
-            xl('Shell command for printing from the server.')
-        ),
-
         'default_chief_complaint' => array(
             xl('Default Reason for Visit'),
             'text',                           // data type
@@ -2813,13 +2796,6 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             '/var/spool/hylafax',             // default
             xl('Location where Hylafax stores faxes.')
-        ),
-
-        'hylafax_enscript' => array(
-            xl('Hylafax Enscript Command'),
-            'text',                           // data type
-            'enscript -M Letter -B -e^ --margins=36:36:36:36', // default
-            xl('Enscript command used by Hylafax.')
         ),
 
         'enable_scanner' => array(
@@ -2879,7 +2855,7 @@ $GLOBALS_METADATA = array(
         'portal_onsite_two_register' => array(
             xl('Allow New Patient Registration Widget'),
             'bool',                           // data type
-            '1',
+            '0',
             xl('Enable Patient Portal new patient to self register.')
         ),
 
@@ -2975,24 +2951,6 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
-        ),
-
-        'fhir_enable' => array(
-            xl('Enable FHIR Provider Client Service'),
-            array(
-                0 => xl('Disabled'),
-                1 => xl('HAPI FHIR'),
-                2 => xl('Smart on FHIR'),
-            ),
-            '0',
-            xl('Enable FHIR Provider Client Service')
-        ),
-
-        'fhir_base_url' => array(
-            xl('FHIR Server Base Address'),
-            'text',
-            'https://hapi.fhir.org/baseDstu3/',
-            xl('Base URL for FHIR Server.')
         ),
 
         'payment_gateway' => array(

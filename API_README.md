@@ -113,13 +113,15 @@ OpenEMR uses OIDC compliant authorization for API. SSL is required and setting b
 
 #### Registration
 
-Here is an example for registering a client. A client needs to be registered before applying for grant to obtain access/refresh tokens.
+Here is an example for registering a client. A client needs to be registered before applying for grant to obtain access/refresh tokens. Note: "post_logout_redirect_uris" is optional and only used if client wants a redirect to its own confirmation workflow.
 
 ```sh
 curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oauth2/default/registration --data '{
    "application_type": "private",
    "redirect_uris":
      ["https://client.example.org/callback"],
+   "post_logout_redirect_uris":
+     ["https://client.example.org/logout/callback"],
    "client_name": "A Private App",
    "token_endpoint_auth_method": "client_secret_post",
    "contacts": ["me@example.org", "them@example.org"]
@@ -157,6 +159,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=refresh_token
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&scope=openid
 &refresh_token=def5020089a766d16...'
 ```
 
@@ -182,6 +185,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&scope=openid
 &user_role=users
 &username=admin
 &password=pass'
@@ -193,6 +197,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&scope=openid
 &user_role=patient
 &username=Phil1
 &password=phil
@@ -210,6 +215,16 @@ Response:
   "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
 }
 ```
+
+#### Logout
+
+A grant (both Authorization Code and Password grants) can be logged out (ie. removed) by url of `oauth2/<site>/logout?id_token_hint=<id_token>`; an example full path would be `https://localhost:9300/oauth2/default/logout?id_token_hint=<id_token>`. Optional: `post_logout_redirect_uri` and `state` parameters can also be sent; note that `post_logout_redirect_uris` also needs to be set during registration for it to work.
+
+#### More Details
+
+The forum thread that detailed development of Authorization and where questions and issues are addressed is here: https://community.open-emr.org/t/v6-authorization-and-api-changes-afoot/15450
+
+More specific development api topics are discussed and described on the above forum thread (such as introspection).
 
 ### /api/ Endpoints
 
@@ -353,12 +368,12 @@ Response:
 }
 ```
 
-#### PATCH /api/practitioner/:uuid
+#### PUT /api/practitioner/:uuid
 
 Request:
 
 ```sh
-curl -X PATCH 'http://localhost:8300/apis/default/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+curl -X PUT 'http://localhost:8300/apis/default/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
     "title": "Mr",
     "fname": "Baz",

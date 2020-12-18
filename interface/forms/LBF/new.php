@@ -18,7 +18,7 @@ if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
     require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::portalSessionStart();
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $ignoreAuth_onsite_portal_two = true;
+        $ignoreAuth_onsite_portal = true;
     } else {
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         exit;
@@ -86,7 +86,7 @@ $from_trend_form = !empty($is_lbf);
 // Yet another invocation from somewhere other than encounter.
 // don't show any action buttons.
 $from_lbf_edit = isset($_GET['isShow']) ? 1 : 0;
-$patient_portal = $ignoreAuth_onsite_portal_two ? 1 : 0;
+$patient_portal = $ignoreAuth_onsite_portal ? 1 : 0;
 $from_lbf_edit = $patient_portal ? 1 : $from_lbf_edit;
 // This is true if the page is loaded into an iframe in add_edit_issue.php.
 $from_issue_form = !empty($_REQUEST['from_issue_form']);
@@ -1128,7 +1128,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         $titlecols = $CPR;
                         echo "<td class='border-top-0 align-top' colspan='" . attr($titlecols) . "'";
                     } else {
-                        echo "<td class='border-top-0 align-top text-nowrap' colspan='" . attr($titlecols) . "'";
+                        // unsure why this was set to always text-nowrap. will monitor and perhaps this should be
+                        // an option in line options.
+                        echo "<td class='border-top-0 align-top text-wrap' colspan='" . attr($titlecols) . "'";
                     }
                     echo " class='";
                     echo ($frow['uor'] == 2) ? "required" : "font-weight-bold";

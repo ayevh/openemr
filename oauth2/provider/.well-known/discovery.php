@@ -1,5 +1,10 @@
 <?php
 
+if ($oauthdisc !== true) {
+    echo xlt("Error. Not authorized");
+    exit();
+}
+
 global $authServer;
 $base_url = $authServer->authBaseFullUrl;
 
@@ -7,6 +12,8 @@ $passwordGrantString = '';
 if (!empty($GLOBALS['oauth_password_grant'])) {
     $passwordGrantString = '"password",';
 }
+$claims = json_encode($authServer->supportedClaims, JSON_PRETTY_PRINT);
+$scopes = json_encode($authServer->supportedScopes, JSON_PRETTY_PRINT);
 
 $discovery = <<<TEMPLATE
 {
@@ -16,22 +23,9 @@ $discovery = <<<TEMPLATE
 "jwks_uri": "$base_url/jwk",
 "userinfo_endpoint": "$base_url/userinfo",
 "registration_endpoint": "$base_url/registration",
-"scopes_supported": [
-    "openid",
-    "profile",
-    "name",
-    "given_name",
-    "family_name",
-    "nickname",
-    "phone",
-    "address",
-    "email",
-    "email_verified",
-    "api:oemr",
-    "api:fhir",
-    "api:port",
-    "api:pofh"
-],
+"end_session_endpoint": "$base_url/logout",
+"introspection_endpoint": "$base_url/introspect",
+"scopes_supported": $scopes,
 "response_types_supported": [
     "code",
     "token",
@@ -58,19 +52,7 @@ $discovery = <<<TEMPLATE
 "subject_types_supported": [
     "public"
 ],
-"claims_supported": [
-    "aud",
-    "email",
-    "email_verified",
-    "exp",
-    "family_name",
-    "given_name",
-    "iat",
-    "iss",
-    "locale",
-    "name",
-    "sub"
-],
+"claims_supported": $claims,
 "require_request_uri_registration": ["false"],
 "id_token_signing_alg_values_supported": [
     "RS256"
@@ -80,6 +62,12 @@ $discovery = <<<TEMPLATE
 ],
 "token_endpoint_auth_signing_alg_values_supported": [
     "RS256"
+],
+"claims_locales_supported": [
+    "en-US"
+],
+"ui_locales_supported": [
+    "en-US"
 ]
 }
 TEMPLATE;

@@ -59,13 +59,14 @@ class CustomPasswordGrant extends PasswordGrant
             throw OAuthServerException::invalidRequest('email');
         }
 
+
         $user = $this->userRepository->getCustomUserEntityByUserCredentials(
             $userrole,
             $username,
             $password,
             $email,
             $this->getIdentifier(),
-            $client
+            $client,
         );
 
         if ($user instanceof UserEntityInterface === false) {
@@ -73,6 +74,10 @@ class CustomPasswordGrant extends PasswordGrant
 
             throw OAuthServerException::invalidGrant('Failed Authentication');
         }
+        $_SESSION['pass_user_id'] = $user->getIdentifier();
+        $_SESSION['pass_username'] = $username;
+        $_SESSION['pass_user_role'] = $userrole;
+        $_SESSION['pass_user_email'] = $email;
 
         return $user;
     }

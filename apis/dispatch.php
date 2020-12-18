@@ -28,11 +28,23 @@ $routes = array();
 // Parse needed information from Redirect or REQUEST_URI
 $resource = $gbl::getRequestEndPoint();
 
+$skipApiAuth = false;
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // Calling api from within the same session (ie. isLocalApi) since a apicsrftoken header was passed
     $isLocalApi = true;
     $gbl::setLocalCall();
+    $skipApiAuth = false;
     $ignoreAuth = false;
+} elseif ($gbl::skipApiAuth($resource)) {
+    // For rest api endpoints that do not require auth, such as the capability statement
+    //  note that the site is validated in the skipApiAuth() function
+    // refactor resource
+    $resource = str_replace('/' . $gbl::$SITE, '', $resource);
+    // set site
+    $_GET['site'] = $gbl::$SITE;
+    $isLocalApi = false;
+    $skipApiAuth = true;
+    $ignoreAuth = true;
 } else {
     // Calling api via rest
     // ensure token is valid
@@ -81,6 +93,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 
     // Get a site id from initial login authentication.
     $isLocalApi = false;
+    $skipApiAuth = false;
     $ignoreAuth = true;
 }
 
@@ -110,7 +123,23 @@ if ($isLocalApi) {
         http_response_code(401);
         exit();
     }
+} elseif ($skipApiAuth) {
+    // For endpoints that do not require auth, such as the capability statement
 } else {
+    // verify that user tokens haven't been revoked.
+    // this is done by verifying the user is trusted with active auth session.
+    $isTrusted = $gbl::isTrustedUser($attributes["oauth_client_id"], $attributes["oauth_user_id"]);
+    if ($isTrusted instanceof ResponseInterface) {
+        // user is not logged on to server with an active session.
+        // too me this is easier than revoking tokens or using phantom tokens.
+        // give a 400(unsure here, could be a 401) so client can redirect to server.
+        $gbl::destroySession();
+        $gbl::emitResponse($isTrusted);
+        exit;
+    }
+    // $isTrusted can be used for further validations using session_cache
+    // which is a json. json_decode($isTrusted['session_cache'])
+
     // authenticate the token
     if (!$gbl->authenticateUserToken($tokenId, $userId)) {
         $gbl::destroySession();
